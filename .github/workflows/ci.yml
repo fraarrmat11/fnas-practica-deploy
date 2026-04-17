@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      # 🔹 Validar nombre de rama
+      - name: Validar nombre de rama
+        run: |
+          BRANCH_NAME=${GITHUB_HEAD_REF}
+          echo "Branch: $BRANCH_NAME"
+          if [[ ! "$BRANCH_NAME" =~ ^1234- ]]; then
+            echo "❌ La rama debe empezar por 1234-"
+            exit 1
+          fi
+
+      # 🔹 Validar commits
+      - name: Validar mensajes de commit
+        run: |
+          git log --pretty=format:"%s" origin/main..HEAD | while read msg; do
+            echo "Checking: $msg"
+            if [[ ! "$msg" =~ ^(feat|fix|docs|style|refactor|test|chore):\ .+ ]]; then
+              echo "❌ Commit inválido: $msg"
+              exit 1
+            fi
+          done
+
+  build:
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 🔹 Build + tests
+      - name: Build y tests
+        run: mvn clean verify
