@@ -33,6 +33,12 @@ jobs:
             fi
           done
 
+      - name: Build multistage Docker image
+        run: docker build -f Dockerfile -t app-multi:latest .
+
+      - name: Sow image size
+        run: docker images app-multi:latest
+
   build:
     runs-on: ubuntu-latest
     needs: validate
