@@ -33,12 +33,6 @@ jobs:
             fi
           done
 
-      - name: Build multistage Docker image
-        run: docker build -f Dockerfile -t app-multi:latest .
-
-      - name: Sow image size
-        run: docker images app-multi:latest
-
   build:
     runs-on: ubuntu-latest
     needs: validate
@@ -51,7 +45,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       # 🔹 Build + tests
       - name: Build y tests
